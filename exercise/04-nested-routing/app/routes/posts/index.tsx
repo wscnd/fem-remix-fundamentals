@@ -2,18 +2,20 @@ import { json } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { getPostListItems } from "~/models/post.server";
 
-export const loader = async () => {
+export async function loader() {
   return json({
     posts: await getPostListItems(),
   });
-};
+}
 
 export default function Posts() {
   const { posts } = useLoaderData<typeof loader>();
   return (
     <main>
       <h1>Posts</h1>
-      {/* 🐨 Add a Link to "admin" here */}
+      <Link to="admin" className="text-red-500 underline">
+        Admin
+      </Link>
       <ul>
         {posts.map((post) => (
           <li key={post.slug}>
