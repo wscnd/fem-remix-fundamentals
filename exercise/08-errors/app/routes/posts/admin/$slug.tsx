@@ -3,6 +3,7 @@ import { json, redirect } from "@remix-run/node";
 import {
   Form,
   useActionData,
+  useCatch,
   useLoaderData,
   useTransition,
 } from "@remix-run/react";
@@ -14,6 +15,7 @@ import {
   getPost,
   updatePost,
 } from "~/models/post.server";
+import { ErrorFallback } from "../../../components";
 
 export async function loader({ params }: LoaderArgs) {
   invariant(params.slug, "slug not found");
@@ -22,7 +24,11 @@ export async function loader({ params }: LoaderArgs) {
   }
 
   const post = await getPost(params.slug);
-  invariant(post, `Post not found: ${params.slug}`);
+
+  if (!post) {
+    throw new Response("not found", { status: 404 });
+  }
+
   return json({ post });
 }
 
@@ -154,3 +160,20 @@ export default function PostAdmin() {
 
 // 🐨 Add an ErrorBoundary component to this
 // 💰 You can use the ErrorFallback component from "~/components"
+export function CatchBoundary() {
+  const caught = useCatch();
+
+  return (
+    <ErrorFallback>
+      {caught.status} : {caught.data}
+    </ErrorFallback>
+  );
+}
+
+export function ErrorBoundary({ error }: { error: Error }) {
+  return (
+    <ErrorFallback>
+      {error.message} {"hello from admin slugs"}
+    </ErrorFallback>
+  );
+}
